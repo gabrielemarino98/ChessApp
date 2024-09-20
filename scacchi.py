@@ -1,13 +1,17 @@
-chessboard = [[0 for _ in range(8)] for _ in range(8)]
-
-gpios = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-
-for gpio in gpios:
-    # To read the state
-      state = GPIO.input(gpio)
-
 import RPi.GPIO as GPIO
 import chess
+
+GPIO.setmode(GPIO.BCM)
+
+chessboard = [[0 for _ in range(8)] for _ in range(8)]
+
+gpios = [0, 5, 6, 9, 10, 11, 13, 19, 26]
+
+for gpio in gpios:
+	#To read the state
+	GPIO.setup(gpio, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+	state = GPIO.input(gpio)
+	print(gpio,state)
 
 def make_move(board, move_uci):
     """
@@ -29,3 +33,6 @@ board = chess.Board()
 make_move(board, "e2e5")  #illegal move
 make_move(board, "e2e4")  # e2 to e4
 make_move(board, "e7e5")  # e7 to e5
+
+
+GPIO.cleanup()
