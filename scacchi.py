@@ -1,23 +1,49 @@
 import RPi.GPIO as GPIO
 import chess
+from time import sleep
+
 
 GPIO.setmode(GPIO.BCM)
-gpiosx = [11, 0, 5, 6, 13, 19, 26, 21]
-gpiosy = [2, 3, 4, 17, 27, 22, 10, 9]
 
-for gpio in gpiosx:
-    GPIO.setup(gpio, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-for gpio in gpiosy:
-    GPIO.setup(gpio, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    
+x = {
+    "a": 11
+    "b": 0,
+    "c": 5,
+    "d": 6,
+    "e": 13,
+    "f": 19,
+    "g": 26,
+    "h": 21,
+}
+
+y = {
+    "8": 9,
+    "7": 10,
+    "6": 22,
+    "5": 27,
+    "4": 17,
+    "3": 4,
+    "2": 3,
+    "1": 2
+}
+
+for gpio in x:
+    GPIO.setup(x[gpio], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
+for gpio in y:
+    GPIO.setup(y[gpio], GPIO.OUT)
+    GPIO.output(y[gpio], GPIO.LOW)
+
 def readboard(chessboard):
+    
+        for indexrow, (row, gpioy) in enumerate(y.items()):
+            GPIO.output(gpioy, GPIO.HIGH)
+            sleep(0.01) #20ms
+            
+            for indexbox, (box, gpiox) in enumerate(x.items()): #to read the piece
+                chessboard[indexrow][indexbox] = GPIO.input(gpiox)
 
-    for gpiox in gpiosx:
-        for gpioy in gpiosy:
-            #To read the state
-            statex = GPIO.input(gpiox)
-            statey = GPIO.input(gpioy)
-            print(gpiox,gpioy,statex*statey)
+            GPIO.output(gpioy, GPIO.LOW)
 
 def make_move(board, move_uci):
     """
@@ -34,9 +60,12 @@ def make_move(board, move_uci):
     else:
         print(f"Illegal move: {move_uci}")
 
-
-
 chessboard = [[0 for _ in range(8)] for _ in range(8)]
+
+readboard(chessboard)
+
+for row in chessboard:
+    print(row)
 
 # Example usage
 board = chess.Board()
